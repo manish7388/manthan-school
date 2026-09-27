@@ -13,6 +13,10 @@ return Application::configure(basePath: dirname(__DIR__))
     )
     ->withMiddleware(function (Middleware $middleware): void {
 
+        $middleware->validateCsrfTokens(except: [
+            'admin/login',
+        ]);
+
         $middleware->trustProxies(
             at: '*',
             headers: \Illuminate\Http\Request::HEADER_X_FORWARDED_FOR
