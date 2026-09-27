@@ -1,4 +1,39 @@
-FROM base AS runtime
+FROM dunglas/frankenphp:1-php8.4-bookworm AS base
+
+RUN cp "$PHP_INI_DIR/php.ini-production" "$PHP_INI_DIR/php.ini" \
+    && install-php-extensions intl zip pdo_mysql
+
+WORKDIR /app
+
+FROM base AS dependencies
+
+COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
+
+COPY composer.json composer.lock ./
+
+RUN composer install \
+    --no-dev \
+    --no-interaction \
+    --no-progress \
+    --no-scripts \
+    --optimize-autoloader \
+    --prefer-dist
+
+COPY . .
+
+RUN mkdir -p \
+        storage/framework/cache \
+        storage/framework/sessions \
+        storage/framework/views \
+        bootstrap/cache \
+    && composer dump-autoload --no-dev --classmap-authoritative
+
+FROM dunglas/frankenphp:1-php8.4-bookworm AS runtime
+
+RUN cp "$PHP_INI_DIR/php.ini-production" "$PHP_INI_DIR/php.ini" \
+    && install-php-extensions intl zip pdo_mysql
+
+WORKDIR /app
 
 COPY --from=dependencies --chown=www-data:www-data /app /app
 
