@@ -17,6 +17,15 @@ class NewsEvent extends Model
         'is_published',
     ];
 
+    protected static function booted(): void
+    {
+        static::creating(function (NewsEvent $newsEvent) {
+            if (!$newsEvent->id) {
+                $newsEvent->id = (int) (microtime(true) * 1000000);
+            }
+        });
+    }
+
     protected function casts(): array
     {
         return [
