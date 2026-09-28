@@ -37,6 +37,9 @@ WORKDIR /app
 
 COPY --from=dependencies --chown=www-data:www-data /app /app
 
+# Laravel public storage link
+RUN php artisan storage:link
+
 COPY --chown=www-data:www-data Caddyfile /etc/frankenphp/Caddyfile
 
 RUN setcap CAP_NET_BIND_SERVICE=+eip /usr/local/bin/frankenphp \
